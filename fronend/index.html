@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <title>Multi-Step Form with Marking</title>
+  <style>
+    /* Reset and Base Styles */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: "Times New Roman", Times, serif;
+      background: #f2f2f2;
+      padding: 20px;
+      line-height: 1.6;
+    }
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      background: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    /* Section Styling */
+    .section {
+      margin-bottom: 30px;
+      padding: 20px;
+      border: 1px solid #e0e0e0;
+      border-radius: 8px;
+      background: #fafafa;
+    }
+    .section h2, .section h3, .section h4 {
+      margin-bottom: 15px;
+      border-bottom: 2px solid #ddd;
+      padding-bottom: 5px;
+    }
+    /* Divider */
+    hr {
+      border: none;
+      border-top: 1px dashed #ccc;
+      margin: 20px 0;
+    }
+    .divider {
+      margin: 20px 0;
+      border-top: 2px solid #007bff;
+    }
+    /* Inputs and Textareas */
+    input[type="text"], textarea {
+      width: 100%;
+      padding: 8px;
+      margin-top: 5px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 14px;
+    }
+    textarea {
+      resize: vertical;
+      min-height: 80px;
+    }
+    /* Table Styling */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 15px;
+    }
+    table, th, td {
+      border: 1px solid #ccc;
+    }
+    th, td {
+      padding: 10px;
+      text-align: left;
+      word-wrap: break-word;
+    }
+    /* View Box & Marker Section */
+    .view-box, .marker-section {
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      padding: 15px;
+      min-height: 150px;
+      background-color: #fff;
+      margin-bottom: 15px;
+      overflow: auto;
+      white-space: pre-wrap;
+    }
+    /* Marker Content Subsections */
+    .marker-content-section {
+      margin-bottom: 20px;
+    }
+    .marker-content-section h4 {
+      margin-bottom: 5px;
+      color: #333;
+    }
+    .marker-content-section p {
+      margin-bottom: 10px;
+    }
+    /* Buttons */
+    button {
+      padding: 10px 15px;
+      border: none;
+      border-radius: 4px;
+      background: #007bff;
+      color: #fff;
+      cursor: pointer;
+      font-size: 14px;
+      margin-top: 10px;
+    }
+    button:hover {
+      background: #0056b3;
+    }
+    .highlight-buttons button {
+      margin: 5px 5px 5px 0;
+      font-family: "Times New Roman", Times, serif;
+      font-size: 14px;
+    }
+  </style>
+  <script>
+    // Function to add a new row to a table by its id
+    function addRow(tableId) {
+      var table = document.getElementById(tableId);
+      var row = table.insertRow(-1);
+      var cell1 = row.insertCell(0);
+      var cell2 = row.insertCell(1);
+
+      cell1.innerHTML = '<input type="text" name="period" placeholder="Enter period" />';
+      cell2.innerHTML = '<textarea name="details" placeholder="Enter details"></textarea>';
+    }
+
+    // Step 2: Copy answers from Step 1 into both the frozen (read-only) and editable views
+    function showAnswers() {
+      var answerA = document.getElementById("answerA").value;
+      var answerD = document.getElementById("answerD").value;
+
+      // Set the frozen (read-only) views
+      document.getElementById("answerAView").innerText = answerA;
+      document.getElementById("answerDView").innerText = answerD;
+
+      // Set the editable views with the same initial text
+      document.getElementById("answerAEditable").value = answerA;
+      document.getElementById("answerDEditable").value = answerD;
+
+      // Copy the table data as well
+      copyTableData("detailsTableB", "tableBView", "tableBEditable");
+      copyTableData("detailsTableC", "tableCView", "tableCEditable");
+    }
+
+    // Table data is copied from the source table to the read-only and editable tables
+    function copyTableData(sourceTableId, readOnlyTableId, editableTableId) {
+      var sourceTable = document.getElementById(sourceTableId);
+      var readOnlyTable = document.getElementById(readOnlyTableId);
+      var editableTable = document.getElementById(editableTableId);
+
+      readOnlyTable.innerHTML = "<tr><th>זמן / אירוע</th><th>פרטים</th></tr>";
+      editableTable.innerHTML = "<tr><th>זמן / אירוע</th><th>פרטים</th></tr>";
+
+      for (var i = 1; i < sourceTable.rows.length; i++) {
+        var row = sourceTable.rows[i];
+        var time = row.cells[0].children[0].value;
+        var details = row.cells[1].children[0].value;
+
+        readOnlyTable.innerHTML += `<tr><td>${time}</td><td>${details}</td></tr>`;
+        editableTable.innerHTML += `<tr><td><input type="text" value="${time}" /></td><td><textarea>${details}</textarea></td></tr>`;
+      }
+    }
+
+    // Step 3: Function to apply highlight color to the selected text
+    function applyHighlight(color) {
+      document.execCommand('hiliteColor', false, color);
+    }
+
+    // Load the combined content from Step 2 into the marker section with better separation
+    function loadStep3Content() {
+      var markerContent = document.getElementById("markerContent");
+      markerContent.innerHTML = "";
+
+      // Section for Part A
+      var sectionA = document.createElement("div");
+      sectionA.className = "marker-content-section";
+      sectionA.innerHTML = `<h4>פרק 1 - ה6 לאוקטובר</h4><p>${document.getElementById("answerAView").innerText}</p>`;
+      markerContent.appendChild(sectionA);
+
+      // Divider
+      var divider1 = document.createElement("div");
+      divider1.className = "divider";
+      markerContent.appendChild(divider1);
+
+      // Table for Part B
+      var tableB = document.getElementById("tableBView").cloneNode(true);
+      markerContent.appendChild(tableB);
+
+      // Divider
+      var divider2 = document.createElement("div");
+      divider2.className = "divider";
+      markerContent.appendChild(divider2);
+
+      // Table for Part C
+      var tableC = document.getElementById("tableCView").cloneNode(true);
+      markerContent.appendChild(tableC);
+
+      // Divider
+      var divider3 = document.createElement("div");
+      divider3.className = "divider";
+      markerContent.appendChild(divider3);
+
+      // Section for Part D
+      var sectionD = document.createElement("div");
+      sectionD.className = "marker-content-section";
+      sectionD.innerHTML = `<h4>פרק אחרון - איפה אני היום</h4><p>${document.getElementById("answerDView").innerText}</p>`;
+      markerContent.appendChild(sectionD);
+    }
+  </script>
+</head>
+<body>
+    <section class="section" id="introduction">
+        <h2>הקדמה והנחיה</h2>
+        <p>
+          בוא נדמיין שהשנה האחרונה היא ספר, שאנחנו רוצים לחלק אותו לפרקים ולתתי-פרקים. אנחנו מציעים 
+          שהפרקים המרכזיים יהיו מסודרים באופן הבא:<br><br>
+        </p>
+        <blockquote style="margin-right: 40px; padding-right: 20px;">
+            <p>
+              1 - הקדמה - החיים שלפני ה7 לאוקטובר - מי אני, מה מעסיק אותי בחיים?<br>
+              2 - השבעה באוקטובר - היום עצמו - סדר האירועים כפי שאני חוויתי אותם<br>
+              3 - השמונה באוקטובר ועד… - זה יכול להיות עד היום, עד יציאה ראשונה הביתה, עד כניסה לסבבי מילואים, חזרה לשגרה בצל מלחמה. פרק זה הוא העבה ביותר, וניתן לחלק אותו למספר פרקים לבחירתך.<br>
+              פרק אחרון - איפה אני היום, ואיך אני רואה את העתיד - בחיבור לפרק ההקדמה, מה מעסיק אותי היום, איך אני רואה את החוויה שלי בעתיד הקרוב?
+            </p>
+          </blockquote>
+        <br>                        
+        <p>כל פרק מחולק לתתי-פרקים.</p>
+        <p>
+          לדוגמא, פרק ה7 באוקטובר, מורכב ממספר רב של אירועים, שלכל אחד מהם ניתן כותרת. אתה תבחר מה הכותרות לתתי-הפרקים שלך.
+        </p>
+        <p>למשל: בפרק ה7 לאוקטובר:</p>
+        <p>
+          תתי-פרקים: השכמה, התארגנות, נסיעה ל.., התארגנות על ציוד, הבלאגן.<br><br>
+        </p>
+        <p>
+          <strong>
+            חשוב שבעת כתיבת רצף האירועים, נסה להיצמד לכותרות ועובדות על אירועים שקרו, ופחות לפירוט מעמיק של רגשות ותחושות. 
+            את אלו יהיה הזדמנות לשתף בהמשך.
+          </strong>
+        </p>
+      </section>
+      
+    <!-- Step 1: Input Form -->
+    <section class="section" id="step1">
+      <h2>שלב א' - רצף האירועים</h2>
+      <!-- Part A -->
+      <div>
+        <h3>פרק 1 - ה6 לאוקטובר</h3>
+        <p><strong>שאלה 1:</strong> בוא נרשום איך נראו החיים שלך בתקופה שלפני<br>
+        לדוגמא: מה מעסיק אותי בחיים? במה אני עובד או לומד? מה קורה עם חברים, תחביבים, משפחה?</p>
+        <textarea id="answerA" rows="6" placeholder="הכנס את תשובתך כאן..."></textarea>
+      </div>
+      <hr>
+      <!-- Part B -->
+      <div>
+        <h3>בשביעי עצמו, איך התגלגלו האירועים?</h3>
+        <p>בוא נפרק את היום לנקודות לפי סדר כרונולוגי.<br>
+        לדוגמא:<br>
+        06:30 - מתעורר ופותח טלפון, רואה שיש מלא הודעות<br>
+        06:32 - פותח טלוויזיה<br>
+        …<br>
+        08:00 - נכנס לאוטו ויוצא לדרך<br>
+        …<br>
+        14:00 - מתקשר הביתה</p>
+        <table id="detailsTableB">
+          <tr>
+            <th>זמן</th>
+            <th>פרטים</th>
+          </tr>
+        </table>
+        <button onclick="addRow('detailsTableB')">הוסף שורה</button>
+      </div>
+      <hr>
+      <!-- Part C -->
+      <div>
+        <h3>מדובר בתקופה ארוכה, ולכל אחד יש את הסיפור שלו</h3>
+        <p>חלק את התקופה בצורה שעובדת לך ומייצגת את הסיפור שלך. זה יכול להיות טכני על פי תאריכים, או מוצמד לאירועים מרכזיים.<br>
+        דוגמאות:<br>
+        מה8 לאוקטובר ועד היום - רצף<br>
+        מה8 לאוקטובר ועד היציאה הראשונה הביתה, מהיציאה הראשונה הביתה ועד סבב שני, סבב שני ועד היום<br>
+        מה8 לאוקטובר ועד ינואר, ינואר ועד מרץ, מרץ ועד אוגוסט, אוגוסט ועד היום<br>
+        מה8 לאוקטובר ועד תקופת מבחנים ראשונה, אירוע משפחתי משמעותי, וכו’ עד היום</p>
+        <table id="detailsTableC">
+          <tr>
+            <th>זמן / אירוע</th>
+            <th>פרטים</th>
+          </tr>
+        </table>
+        <button onclick="addRow('detailsTableC')">הוסף שורה</button>
+      </div>
+      <hr>
+      <!-- Part D -->
+      <div>
+        <h3>פרק אחרון - איפה אני היום</h3>
+        <p>מה מעסיק אותי היום, איך אני רואה את החוויה שלי בעתיד הקרוב?</p>
+        <textarea id="answerD" rows="6" placeholder="הכנס את תשובתך כאן..."></textarea>
+      </div>
+      <button onclick="showAnswers()">המשך לשלב 2</button>
+    </section>
+
+    <hr>
+
+    <!-- Step 2: Display Answers with Two Views -->
+    <section class="section" id="step2">
+      <h2>שלב ב' - העמקה</h2>
+      <!-- For Part A Answer -->
+      <div>
+        <h3>תשובת פרק 1 - ה6 לאוקטובר</h3>
+        <div>
+          <h4>תצוגה לקריאה בלבד</h4>
+          <div id="answerAView" class="view-box"></div>
+        </div>
+        <div>
+          <h4>תצוגה לעריכה</h4>
+          <textarea id="answerAEditable" rows="6" placeholder="ערוך את תשובתך כאן..."></textarea>
+        </div>
+      </div>
+      <hr>
+      <!-- Display Tables -->
+      <h3>פירוט כרונולוגי</h3>
+      <table id="tableBView"></table>
+      <table id="tableBEditable"></table>
+      <h3>תיאור התקופות</h3>
+      <table id="tableCView"></table>
+      <table id="tableCEditable"></table>
+      <hr>
+      <!-- For Part D Answer -->
+      <div>
+        <h3>תשובת פרק אחרון - איפה אני היום</h3>
+        <div>
+          <h4>תצוגה לקריאה בלבד</h4>
+          <div id="answerDView" class="view-box"></div>
+        </div>
+        <div>
+          <h4>תצוגה לעריכה</h4>
+          <textarea id="answerDEditable" rows="6" placeholder="ערוך את תשובתך כאן..."></textarea>
+        </div>
+      </div>
+      <button onclick="loadStep3Content()">המשך לשלב 3</button>
+    </section>
+
+    <hr>
+
+    <!-- Step 3: Marker Section -->
+    <section class="section" id="step3">
+      <h2>שלב ג' - מעבר נוסף</h2>
+      <p>בחר/י את האירועים הבאים בתוך הסיפור שלך:</p>
+      <ul>
+        <li>אירוע שאתה שמח על האופן שבו תפקדת</li>
+        <li>אירוע קשה להתמודדות</li>
+        <li>אירוע מבלבל, לא ברור - עם הכי הרבה חוסר ודאות</li>
+        <li>אירוע שמייצג את התקווה שלך לעתיד</li>
+        <li>אירוע משמעותי נוסף</li>
+      </ul>
+      <div class="highlight-buttons">
+        <button onclick="applyHighlight('yellow')" style="background-color: yellow;">צהוב</button>
+        <button onclick="applyHighlight('purple')" style="background-color: purple; color: white;">סגול</button>
+        <button onclick="applyHighlight('red')" style="background-color: red;">אדום</button>
+        <button onclick="applyHighlight('green')" style="background-color: green;">ירוק</button>
+        <button onclick="applyHighlight('blue')" style="background-color: blue; color: white;">כחול</button>
+      </div>
+      <p>כאן מופיעה התצוגה עם התשובות הערוכות:</p>
+      <div id="markerContent" class="marker-section" contenteditable="true"></div>
+    </section>
+  </div>
+</body>
